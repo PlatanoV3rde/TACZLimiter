@@ -1,7 +1,19 @@
-plugins {
-    id 'net.minecraftforge.gradle' version '5.1.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
 }
+
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
 
 version = '1.0'
 group = 'com.platanov3rde.taczlimiter'
@@ -23,24 +35,12 @@ minecraft {
                 }
             }
         }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                taczlimiter {
-                    source sourceSets.main
-                }
-            }
-        }
     }
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    // Ejemplo para dependencias de CurseForge (necesario para TACZ)
     maven {
         url "https://cursemaven.com"
         content {
@@ -51,9 +51,6 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
-    
-    // Dependencia de TACZ (reemplaza XXXXXX con el Project ID de TACZ en CurseForge)
-    implementation fg.deobf("curse.maven:tacz-XXXXXX:YYYYYY") // Reemplaza YYYYYY con el File ID
 }
 
 jar {
