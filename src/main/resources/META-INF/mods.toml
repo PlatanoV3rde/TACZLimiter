@@ -1,0 +1,19 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="taczlimiter"
+version="1.0.0"
+displayName="TACZ Limiter"
+description="Evita que jugadores disparen armas TACZ en mundos específicos. Solo requiere instalarse en el servidor."
+
+# Esta línea es importante para marcar el mod como server-only:
+displayURL="https://github.com/TuUsuario/TACZLimiter"
+
+[[dependencies.taczlimiter]]
+    modId="tacz"
+    mandatory=true
+    versionRange="[1.0,)"
+    ordering="AFTER"
+    side="BOTH"
