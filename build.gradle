@@ -35,7 +35,7 @@ jar {
     manifest {
         attributes([
                 "Specification-Title": "TACZLimiter",
-                "Specification-Vendor": "TuNombre",
+                "Specification-Vendor": "PlatanoV3rde",
                 "Implementation-Title": project.name,
                 "Implementation-Version": project.version
         ])
