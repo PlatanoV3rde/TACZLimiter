@@ -1,18 +1,20 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0.16'
+    id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-group = 'com.tuusuario'
-version = '1.0.0'
-archivesBaseName = 'taczlimiter'
+version = '1.0'
+group = 'com.platanov3rde.taczlimiter'
+archivesBaseName = 'TACZLimiter'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
     runs {
-        server {
+        client {
             workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
             mods {
                 taczlimiter {
                     source sourceSets.main
@@ -22,22 +24,6 @@ minecraft {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
-    implementation 'org.yaml:snakeyaml:2.2' // para leer YAML
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title": "TACZLimiter",
-                "Specification-Vendor": "PlatanoV3rde",
-                "Implementation-Title": project.name,
-                "Implementation-Version": project.version
-        ])
-    }
 }
