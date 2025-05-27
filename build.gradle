@@ -11,14 +11,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 minecraft {
     mappings channel: 'official', version: '1.20.1'
     runs {
-        client {
-            workingDirectory project.file('run')
-            mods {
-                taczlimiter {
-                    source sourceSets.main
-                }
-            }
-        }
         server {
             workingDirectory project.file('run')
             mods {
@@ -30,23 +22,22 @@ minecraft {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
-
-    // Agrega TACZ como dependencia local si no está en Maven
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    // SnakeYAML para leer el config.yml
-    implementation 'org.yaml:snakeyaml:2.2'
+    implementation 'org.yaml:snakeyaml:2.2' // para leer YAML
 }
 
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "TACZLimiter",
-                "Specification-Vendor"    : "TuNombre",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.version
+                "Specification-Title": "TACZLimiter",
+                "Specification-Vendor": "TuNombre",
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version
         ])
     }
 }
