@@ -1,11 +1,14 @@
-package com.ejemplo.taczlimiter.events;
+package com.platanov3rde.taczlimiter.events;
 
+import com.platanov3rde.taczlimiter.config.ModConfig;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber
 public class WeaponHandler {
@@ -14,30 +17,27 @@ public class WeaponHandler {
         Player player = event.getEntity();
         ItemStack heldItem = player.getMainHandItem();
         
-        // Verifica si el item es un arma de TACZ (ajusta según el mod)
         if (isTACZWeapon(heldItem)) {
             ResourceLocation worldId = player.level().dimension().location();
             
-            if (ModConfig.DISABLED_WORLDS.contains(worldId)) {
+            if (ModConfig.DISABLED_WORLDS.contains(worldId.toString())) {
                 event.setCanceled(true);
                 player.displayClientMessage(
                     Component.literal("¡No puedes usar armas de TACZ en este mundo!"),
                     true
                 );
                 
-                // Opción 1: Quitar munición (si aplica)
-                // removeAmmo(player);
-                
-                // Opción 2: Soltar el arma al suelo
-                player.drop(heldItem.copy(), false);
-                heldItem.shrink(heldItem.getCount());
+                // Opción 2: Soltar el arma al suelo (actualizada)
+                if (!player.getAbilities().instabuild) {
+                    player.drop(heldItem.copy(), false, false); // Los parámetros extra evitan el sonido de pickup
+                    heldItem.setCount(0);
+                }
             }
         }
     }
     
     private static boolean isTACZWeapon(ItemStack item) {
-        // Reemplaza con la lógica real para detectar armas de TACZ
-        return item.getItem().getRegistryName() != null 
-            && item.getItem().getRegistryName().getNamespace().equals("tacz");
+        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(item.getItem());
+        return itemId != null && itemId.getNamespace().equals("tacz");
     }
 }
