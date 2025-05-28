@@ -4,13 +4,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.16', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+'
     }
 }
 
 plugins {
     id 'eclipse'
     id 'maven-publish'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -23,6 +24,8 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
+    
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     
     runs {
         client {
@@ -41,16 +44,27 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    mavenCentral()
     maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
+    
+    // Dependencias necesarias
+    implementation 'org.yaml:snakeyaml:2.0'
+    implementation 'com.google.guava:guava:31.1-jre'
+    
+    // Si usas Mixins (opcional)
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 jar {
@@ -65,4 +79,13 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+    
+    // Para incluir todas las dependencias en el jar final
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
