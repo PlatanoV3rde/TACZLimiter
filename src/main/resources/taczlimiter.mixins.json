@@ -1,9 +1,13 @@
 {
   "required": true,
+  "minVersion": "0.8",
   "package": "com.platanov3rde.taczlimiter.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "taczlimiter.refmap.json",
-  "mixins": [],
+  "mixins": [
+    "ModernKineticGunItemMixin"
+  ],
   "client": [],
-  "server": []
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
