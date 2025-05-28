@@ -1,6 +1,5 @@
 package com.platanov3rde.taczlimiter.config;
 
-import net.minecraft.resources.ResourceLocation;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -17,23 +16,16 @@ public class ModConfig {
     private static final String CONFIG_FILE = "./config/taczlimiter-config.yml";
     private static final List<String> DEFAULT_WORLDS = List.of(
         "minecraft:the_nether",
-        "minecraft:the_end"
+        "minecraft:the_end",
+        "spawn",
+        "lobby"
     );
 
     public static void load() {
         try {
             File configFile = new File(CONFIG_FILE);
             createDefaultConfigIfMissing(configFile);
-
-            Yaml yaml = new Yaml();
-            try (FileReader reader = new FileReader(configFile)) {
-                Map<String, Object> data = yaml.load(reader);
-                if (data != null && data.containsKey("disabled_worlds")) {
-                    List<String> worlds = (List<String>) data.get("disabled_worlds");
-                    DISABLED_WORLDS.clear();
-                    DISABLED_WORLDS.addAll(validateWorldNames(worlds));
-                }
-            }
+            loadConfigFile(configFile);
         } catch (Exception e) {
             System.err.println("[TACZLimiter] Error loading config, using defaults: " + e.getMessage());
             DISABLED_WORLDS.addAll(DEFAULT_WORLDS);
@@ -53,19 +45,16 @@ public class ModConfig {
         }
     }
 
-    private static Set<String> validateWorldNames(List<String> worldNames) {
-        Set<String> validNames = new HashSet<>();
-        if (worldNames != null) {
-            for (String name : worldNames) {
-                try {
-                    if (name.matches("^[a-z0-9_.-]+:[a-z0-9_.-]+$")) {
-                        validNames.add(name.toLowerCase());
-                    }
-                } catch (Exception e) {
-                    System.err.println("Invalid world name in config: " + name);
-                }
+    private static void loadConfigFile(File configFile) throws IOException {
+        Yaml yaml = new Yaml();
+        try (FileReader reader = new FileReader(configFile)) {
+            Map<String, Object> data = yaml.load(reader);
+            if (data != null && data.containsKey("disabled_worlds")) {
+                DISABLED_WORLDS.clear();
+                @SuppressWarnings("unchecked")
+                List<String> worlds = (List<String>) data.get("disabled_worlds");
+                worlds.forEach(world -> DISABLED_WORLDS.add(world.toLowerCase()));
             }
         }
-        return validNames.isEmpty() ? new HashSet<>(DEFAULT_WORLDS) : validNames;
     }
 }
