@@ -5,8 +5,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+'
-        classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+' // ForgeGradle 6 para 1.20.1
+        classpath 'org.spongepowered:mixingradle:0.7.+' // Plugin de Mixin
     }
 }
 
@@ -26,15 +26,18 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
-    
+
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    
+
     runs {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+
+            // Asegura que se cargue la configuración del Mixin
             arg '-mixin.config=taczlimiter.mixins.json'
+
             mods {
                 taczlimiter {
                     source sourceSets.main
@@ -44,12 +47,15 @@ minecraft {
     }
 }
 
+// Configuración del plugin Mixin
 mixin {
-    add sourceSets.main, 'taczlimiter.refmap.json'
-    config 'taczlimiter.mixins.json'
+    add sourceSets.main, 'taczlimiter.refmap.json' // Archivo refmap generado por el procesador de anotaciones
+    config 'taczlimiter.mixins.json'               // Archivo JSON de configuración de Mixins
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+}
 
 repositories {
     maven {
@@ -59,11 +65,15 @@ repositories {
         }
     }
     maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+    mavenCentral()
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
+
     implementation 'org.yaml:snakeyaml:2.0'
+
+    // Procesador de anotaciones de Mixin necesario para compilar Mixins
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -74,10 +84,10 @@ jar {
             "Specification-Vendor": "PlatanoV3rde",
             "Specification-Version": "1",
             "Implementation-Title": project.name,
-            "Implementation-Version": project.jar.archiveVersion,
+            "Implementation-Version": project.version,
             "Implementation-Vendor": "PlatanoV3rde",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "taczlimiter.mixins.json"
+            "MixinConfigs": "taczlimiter.mixins.json" // Asegura que el archivo de mixin se cargue
         ])
     }
 }
