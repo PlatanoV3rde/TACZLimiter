@@ -64,7 +64,8 @@ public class TACZLimiterMod {
         ResourceLocation worldId = world.dimension().location();
         String worldName = worldId.getPath();
 
-        if (!disabledWorlds.contains(worldName) return;
+        // Fixed line - added missing parenthesis
+        if (!disabledWorlds.contains(worldName)) return;
 
         ItemStack item = event.getItemStack();
         ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(item.getItem());
