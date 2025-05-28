@@ -59,10 +59,16 @@ public class TACZLimiterMod {
         }
     }
 
-    // Bloquear disparo (click izquierdo) con el arma TACZ
+    // Detectar clic izquierdo (bloque o aire)
     @SubscribeEvent
-    public void onLeftClick(PlayerInteractEvent.LeftClickItem event) {
+    public void onLeftClick(PlayerInteractEvent event) {
         if (event.getLevel().isClientSide()) return;
+
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+
+        PlayerInteractEvent.Action action = event.getAction();
+        if (action != PlayerInteractEvent.Action.LEFT_CLICK_BLOCK &&
+            action != PlayerInteractEvent.Action.LEFT_CLICK_AIR) return;
 
         Player player = event.getEntity();
         Level world = event.getLevel();
@@ -87,7 +93,7 @@ public class TACZLimiterMod {
         }
     }
 
-    // Bloquear daño causado con el arma TACZ - respaldo
+    // Reforzar el bloqueo si aún logra hacer daño
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
