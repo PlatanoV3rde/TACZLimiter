@@ -5,12 +5,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -58,11 +58,39 @@ public class TACZLimiterMod {
         }
     }
 
+    // Bloquear el disparo (click izquierdo) con el arma TACZ
+    @SubscribeEvent
+    public void onLeftClick(PlayerInteractEvent.LeftClickItem event) {
+        if (event.getLevel().isClientSide()) return;
+
+        Player player = event.getEntity();
+        Level world = event.getLevel();
+        String worldName = world.dimension().location().getPath();
+
+        if (!disabledWorlds.contains(worldName)) return;
+
+        ItemStack mainHand = player.getMainHandItem();
+        ItemStack offHand = player.getOffhandItem();
+
+        ResourceLocation mainId = ForgeRegistries.ITEMS.getKey(mainHand.getItem());
+        ResourceLocation offId = ForgeRegistries.ITEMS.getKey(offHand.getItem());
+
+        boolean isTACZGun = (mainId != null && mainId.equals(TACZ_GUN_ID)) ||
+                            (offId != null && offId.equals(TACZ_GUN_ID));
+
+        if (isTACZGun) {
+            event.setCanceled(true);
+            player.sendSystemMessage(Component.literal("§c¡No puedes disparar esta arma en esta zona!"));
+            world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
+    // (Opcional) Bloquear daño causado con el arma TACZ - respaldo
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
-        DamageSource source = event.getSource();
+        if (!(event.getSource().getEntity() instanceof Player player)) return;
 
-        if (!(source.getEntity() instanceof Player player)) return;
         Level world = player.level();
         String worldName = world.dimension().location().getPath();
 
@@ -71,16 +99,15 @@ public class TACZLimiterMod {
         ItemStack mainHand = player.getMainHandItem();
         ItemStack offHand = player.getOffhandItem();
 
-        ResourceLocation mainItemId = ForgeRegistries.ITEMS.getKey(mainHand.getItem());
-        ResourceLocation offItemId = ForgeRegistries.ITEMS.getKey(offHand.getItem());
+        ResourceLocation mainId = ForgeRegistries.ITEMS.getKey(mainHand.getItem());
+        ResourceLocation offId = ForgeRegistries.ITEMS.getKey(offHand.getItem());
 
-        boolean isTACZGun = (mainItemId != null && mainItemId.equals(TACZ_GUN_ID)) ||
-                            (offItemId != null && offItemId.equals(TACZ_GUN_ID));
+        boolean isTACZGun = (mainId != null && mainId.equals(TACZ_GUN_ID)) ||
+                            (offId != null && offId.equals(TACZ_GUN_ID));
 
         if (isTACZGun) {
             event.setCanceled(true);
             player.sendSystemMessage(Component.literal("§c¡No puedes usar esta arma en este mundo!"));
-
             world.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
