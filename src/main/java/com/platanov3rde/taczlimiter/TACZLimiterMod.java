@@ -59,16 +59,12 @@ public class TACZLimiterMod {
         }
     }
 
-    // Detectar clic izquierdo (bloque o aire)
+    // Detectar clic izquierdo en un bloque
     @SubscribeEvent
-    public void onLeftClick(PlayerInteractEvent event) {
+    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getLevel().isClientSide()) return;
 
         if (event.getHand() != InteractionHand.MAIN_HAND) return;
-
-        PlayerInteractEvent.Action action = event.getAction();
-        if (action != PlayerInteractEvent.Action.LEFT_CLICK_BLOCK &&
-            action != PlayerInteractEvent.Action.LEFT_CLICK_AIR) return;
 
         Player player = event.getEntity();
         Level world = event.getLevel();
@@ -87,6 +83,36 @@ public class TACZLimiterMod {
 
         if (isTACZGun) {
             event.setCanceled(true);
+            player.sendSystemMessage(Component.literal("§c¡No puedes disparar esta arma en esta zona!"));
+            world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
+    // Detectar clic izquierdo en el aire
+    @SubscribeEvent
+    public void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+        if (event.getLevel().isClientSide()) return;
+
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+
+        Player player = event.getEntity();
+        Level world = event.getLevel();
+        String worldName = world.dimension().location().getPath();
+
+        if (!disabledWorlds.contains(worldName)) return;
+
+        ItemStack mainHand = player.getMainHandItem();
+        ItemStack offHand = player.getOffhandItem();
+
+        ResourceLocation mainId = ForgeRegistries.ITEMS.getKey(mainHand.getItem());
+        ResourceLocation offId = ForgeRegistries.ITEMS.getKey(offHand.getItem());
+
+        boolean isTACZGun = (mainId != null && mainId.equals(TACZ_GUN_ID)) ||
+                            (offId != null && offId.equals(TACZ_GUN_ID));
+
+        if (isTACZGun) {
+            // No se puede cancelar directamente este evento, pero se puede notificar al jugador
             player.sendSystemMessage(Component.literal("§c¡No puedes disparar esta arma en esta zona!"));
             world.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
