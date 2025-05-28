@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,13 +40,15 @@ public class ModConfig {
         }
     }
 
-    private static void createDefaultConfigIfMissing(File configFile) throws Exception {
+    private static void createDefaultConfigIfMissing(File configFile) throws IOException {
         if (!configFile.exists()) {
             configFile.getParentFile().mkdirs();
             try (FileWriter writer = new FileWriter(configFile)) {
                 writer.write("# TACZ Limiter Configuration\n");
                 writer.write("disabled_worlds:\n");
-                DEFAULT_WORLDS.forEach(world -> writer.write("  - " + world + "\n"));
+                for (String world : DEFAULT_WORLDS) {
+                    writer.write("  - " + world + "\n");
+                }
             }
         }
     }
@@ -55,7 +58,6 @@ public class ModConfig {
         if (worldNames != null) {
             for (String name : worldNames) {
                 try {
-                    // Validate format without creating ResourceLocation
                     if (name.matches("^[a-z0-9_.-]+:[a-z0-9_.-]+$")) {
                         validNames.add(name.toLowerCase());
                     }
