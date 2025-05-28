@@ -1,20 +1,22 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
 plugins {
     id 'eclipse'
     id 'maven-publish'
-    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '1.0'
 group = 'com.platanov3rde.taczlimiter'
@@ -32,6 +34,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            arg '-mixin.config=taczlimiter.mixins.json'
             mods {
                 taczlimiter {
                     source sourceSets.main
@@ -41,29 +44,26 @@ minecraft {
     }
 }
 
+mixin {
+    add sourceSets.main, 'taczlimiter.refmap.json'
+    config 'taczlimiter.mixins.json'
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    mavenCentral()
     maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
-    maven {
-        url "https://jitpack.io"
-    }
+    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
-    
-    // Dependencias necesarias
     implementation 'org.yaml:snakeyaml:2.0'
-    implementation 'com.google.guava:guava:31.1-jre'
-    
-    // Si usas Mixins (opcional)
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -76,16 +76,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": project.jar.archiveVersion,
             "Implementation-Vendor": "PlatanoV3rde",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "MixinConfigs": "taczlimiter.mixins.json"
         ])
     }
-    
-    // Para incluir todas las dependencias en el jar final
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
 }
