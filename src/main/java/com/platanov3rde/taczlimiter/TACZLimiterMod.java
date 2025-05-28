@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -58,10 +59,17 @@ public class TACZLimiterMod {
         }
     }
 
-    // Bloquear el disparo (click izquierdo) con el arma TACZ
+    // Bloquear disparo (click izquierdo) con el arma TACZ
     @SubscribeEvent
-    public void onLeftClick(PlayerInteractEvent.LeftClickItem event) {
+    public void onLeftClick(PlayerInteractEvent event) {
         if (event.getLevel().isClientSide()) return;
+
+        // Solo main hand
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+
+        // Filtrar solo clicks izquierdos (en aire o bloque)
+        PlayerInteractEvent.Action action = event.getAction();
+        if (action != PlayerInteractEvent.Action.LEFT_CLICK_AIR && action != PlayerInteractEvent.Action.LEFT_CLICK_BLOCK) return;
 
         Player player = event.getEntity();
         Level world = event.getLevel();
@@ -86,7 +94,7 @@ public class TACZLimiterMod {
         }
     }
 
-    // (Opcional) Bloquear daño causado con el arma TACZ - respaldo
+    // Bloquear daño causado con el arma TACZ - respaldo
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
