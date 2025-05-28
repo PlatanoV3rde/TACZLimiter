@@ -27,13 +27,7 @@ jobs:
           gradle-version: 8.5
 
       - name: Build with Gradle
-        run: |
-          # Configura ForgeGradle (¡crítico!)
-          mkdir -p ~/.gradle
-          echo 'systemProp.http.proxyHost=gradle.org' > ~/.gradle/gradle.properties
-          
-          # Construye el mod
-          gradle build --no-daemon --stacktrace
+        run: gradle build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
